@@ -53,10 +53,10 @@ export async function POST(request: Request) {
 
     // 生成一个令牌（相当于登录通行证）
     const token = jwt.sign(
-      { userId: user.id, phone: user.phone },
-      process.env.JWT_SECRET!,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-    );
+  { userId: user.id, phone: user.phone },
+  process.env.JWT_SECRET as string,
+  { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+);
 
     return NextResponse.json({
       success: true,
