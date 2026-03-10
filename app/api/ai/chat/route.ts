@@ -1,11 +1,17 @@
 export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
-//import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
+import OpenAI from 'openai';
+
+// 初始化OpenAI客户端（指向通义千问/百炼）
+const openai = new OpenAI({
+  apiKey: process.env.DASHSCOPE_API_KEY || '',
+  baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+});
 
 export async function POST(request: Request) {
   try {
-    // 从请求头中取出令牌
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
@@ -15,7 +21,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 验证令牌，取出用户ID
     const decoded = (jwt as any).verify(token, process.env.JWT_SECRET!) as { userId: string };
     const userId = decoded.userId;
 
@@ -28,25 +33,33 @@ export async function POST(request: Request) {
       );
     }
 
-    // 模拟AI回答（以后可以换成真AI）
-    const answer = `关于"${question}"的问题，这是一个模拟回答。等你接入真正的AI（比如通义千问），这里就会有聪明回答了！`;
+    // 检查是否配置了API Key
+    if (!process.env.DASHSCOPE_API_KEY) {
+      console.warn('未配置DASHSCOPE_API_KEY，使用模拟回答');
+      return NextResponse.json({
+        success: true,
+        data: {
+          answer: `关于"${question}"的问题，这是一个模拟回答。请在Netlify环境变量中配置DASHSCOPE_API_KEY。`,
+          suggestions: ['什么是导数？', '如何求极限？', '微积分应用']
+        }
+      });
+    }
 
-    // 把提问和回答记录到数据库
-   // await prisma.interaction.create({
-      //data: {
-      //  userId,
-    //    question,
-    //    answer
-   //   }
-   // });
+    // 调用通义千问API
+    const completion = await openai.chat.completions.create({
+      model: 'qwen-turbo', // 免费额度适用
+      messages: [
+        {
+          role: 'system',
+          content: '你是一位专业的AI助教，擅长解答数学、编程、物理等学科问题。请用中文回答，语言要清晰易懂。'
+        },
+        { role: 'user', content: question }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000,
+    });
 
-    // 给用户增加0.1小时学习时长
-   // await prisma.user.update({
-     // where: { id: userId },
-     // data: {
-    //    totalHours: { increment: 0.1 }
-  //    }
-   // });
+    const answer = completion.choices[0]?.message?.content || '抱歉，我无法回答这个问题。';
 
     return NextResponse.json({
       success: true,
@@ -55,11 +68,19 @@ export async function POST(request: Request) {
         suggestions: ['什么是导数？', '如何求极限？', '微积分应用']
       }
     });
-  } catch (error) {
+
+  } catch (error: any) {
     console.error('AI聊天错误:', error);
-    return NextResponse.json(
-      { success: false, message: 'AI服务暂时不可用' },
-      { status: 500 }
-    );
+    
+    // 错误处理：如果API调用失败，回退到模拟回答
+    const { question } = await request.json().catch(() => ({ question: '' }));
+    
+    return NextResponse.json({
+      success: true,
+      data: {
+        answer: `关于"${question}"的问题，AI服务暂时不可用。这是一个模拟回答。`,
+        suggestions: ['什么是导数？', '如何求极限？', '微积分应用']
+      }
+    });
   }
 }
