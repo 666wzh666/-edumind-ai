@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
     }
 
     // 验证令牌，取出用户ID
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+    const decoded = (jwt as any).verify(token, process.env.JWT_SECRET!) as { userId: string };
     const userId = decoded.userId;
 
     const { question } = await request.json();
