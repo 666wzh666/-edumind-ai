@@ -11,7 +11,7 @@ import {
   UserOutlined, RobotOutlined, LogoutOutlined,
   BookOutlined, ClockCircleOutlined, FireOutlined,
   SendOutlined, ShareAltOutlined, LineChartOutlined,
-  TeamOutlined, TrophyOutlined
+  TeamOutlined, TrophyOutlined,MessageOutlined
 } from '@ant-design/icons';
 
 import { Line, Pie } from '@ant-design/plots';
