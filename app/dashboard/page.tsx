@@ -292,6 +292,35 @@ const PieChart = () => {
 </Col>
   </Row>
             </TabPane>
+            <TabPane tab="个人中心" key="5">
+  <Card style={{ borderRadius: 12 }}>
+    <Row gutter={[24, 24]}>
+      <Col span={24} style={{ textAlign: 'center' }}>
+        <Avatar size={80} icon={<UserOutlined />} />
+        <Title level={3} style={{ marginTop: 16 }}>{user?.nickname}</Title>
+        <Text type="secondary">手机号：{user?.phone}</Text>
+      </Col>
+      <Col span={24}>
+        <List>
+          <List.Item>注册时间：2024-01-01</List.Item>
+          <List.Item>累计学习：{user?.totalHours?.toFixed(1) || 0}小时</List.Item>
+          <List.Item>完成课程：8门</List.Item>
+          <List.Item>获得证书：2张</List.Item>
+        </List>
+      </Col>
+    </Row>
+    <div style={{ marginTop: 24, textAlign: 'center' }}>
+      <Button 
+        type="primary" 
+        ghost 
+        icon={<MessageOutlined />}
+        onClick={() => message.info('感谢反馈！我们会尽快处理。')}
+      >
+        意见反馈
+      </Button>
+    </div>
+  </Card>
+</TabPane>
           </Tabs>
         </Content>
       </Layout>
