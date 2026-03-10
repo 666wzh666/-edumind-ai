@@ -14,6 +14,8 @@ import {
   TeamOutlined, TrophyOutlined
 } from '@ant-design/icons';
 
+import { Line, Pie } from '@ant-design/plots';
+
 const { Header, Content, Sider } = Layout;
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -38,7 +40,43 @@ export default function DashboardPage() {
       setUser(JSON.parse(userData));
     }
   }, []);
+// 折线图工具
+const LineChart = () => {
+  const data = [
+    { day: '周一', hours: 2.5 },
+    { day: '周二', hours: 3.0 },
+    { day: '周三', hours: 1.8 },
+    { day: '周四', hours: 4.2 },
+    { day: '周五', hours: 2.2 },
+    { day: '周六', hours: 5.0 },
+    { day: '周日', hours: 3.5 },
+  ];
+  const config = {
+    data,
+    xField: 'day',
+    yField: 'hours',
+    point: { size: 5, shape: 'circle' },
+    label: { style: { fill: '#aaa' } },
+  };
+  return <Line {...config} />;
+};
 
+// 饼图工具
+const PieChart = () => {
+  const data = [
+    { type: '已掌握', value: 27 },
+    { type: '学习中', value: 45 },
+    { type: '未开始', value: 28 },
+  ];
+  const config = {
+    data,
+    angleField: 'value',
+    colorField: 'type',
+    label: { type: 'inner', offset: '-30%', content: '{percentage}' },
+    interactions: [{ type: 'element-active' }],
+  };
+  return <Pie {...config} />;
+};
   const askAI = async () => {
     if (!question.trim()) {
       message.warning('请输入问题');
@@ -225,37 +263,32 @@ export default function DashboardPage() {
             </TabPane>
 
             {/* 学习报告 */}
-            <TabPane tab="学习报告" key="4">
-              <Row gutter={[24, 24]}>
-                <Col span={24}><Card title="学习趋势" style={{ borderRadius: 12 }}><div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Text type="secondary">图表展示：近7天学习时长</Text></div></Card></Col>
-                <Col span={12}><Card title="知识点掌握分布" style={{ borderRadius: 12 }}><div style={{ height: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Text type="secondary">饼图：已掌握/学习中/未开始</Text></div></Card></Col>
-                <Col span={12}><Card title="学习建议" style={{ borderRadius: 12 }}><List dataSource={['加强微分练习，完成进度30%', '复习导数概念，巩固基础', '尝试完成积分入门课程']} renderItem={item => <List.Item>• {item}</List.Item>} /></Card></Col>
-              </Row>
-            </TabPane>
-
-            {/* 个人中心 */}
-            <TabPane tab="个人中心" key="5">
-              <Card style={{ borderRadius: 12 }}>
-                <Row gutter={[24, 24]}>
-                  <Col span={24} style={{ textAlign: 'center' }}>
-                    <Avatar size={80} icon={<UserOutlined />} />
-                    <Title level={3} style={{ marginTop: 16 }}>{user.nickname}</Title>
-                    <Text type="secondary">手机号：{user.phone}</Text>
-                  </Col>
-                  <Col span={24}>
-                    <List>
-                      <List.Item>注册时间：2024-01-01</List.Item>
-                      <List.Item>累计学习：{user.totalHours.toFixed(1)}小时</List.Item>
-                      <List.Item>完成课程：8门</List.Item>
-                      <List.Item>获得证书：2张</List.Item>
-                    </List>
-                  </Col>
-                </Row>
-              </Card>
-            </TabPane>
-          </Tabs>
-        </Content>
-      </Layout>
-    </Layout>
-  );
-}
+    <TabPane tab="学习报告" key="4">
+  <Row gutter={[24, 24]}>
+    <Col span={24}>
+      <Card title="近7天学习时长" style={{ borderRadius: 12 }}>
+        <div style={{ height: 300 }}>
+          <LineChart />
+        </div>
+      </Card>
+    </Col>
+    <Col span={12}>
+      <Card title="知识点掌握分布" style={{ borderRadius: 12 }}>
+        <PieChart />
+      </Card>
+    </Col>
+   <Col span={12}>
+  <Card title="学习建议" style={{ borderRadius: 12 }}>
+    <List
+      dataSource={[
+        '加强微分练习，完成进度30%',
+        '复习导数概念，巩固基础',
+        '尝试完成积分入门课程',
+        '本周目标：完成3个章节'
+      ]}
+      renderItem={(item) => <List.Item>• {item}</List.Item>}
+    />
+  </Card>
+</Col>
+  </Row>
+</TabPane>
