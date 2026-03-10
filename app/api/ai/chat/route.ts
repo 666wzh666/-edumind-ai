@@ -41,12 +41,12 @@ export async function POST(request: Request) {
    // });
 
     // 给用户增加0.1小时学习时长
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        totalHours: { increment: 0.1 }
-      }
-    });
+   // await prisma.user.update({
+     // where: { id: userId },
+     // data: {
+    //    totalHours: { increment: 0.1 }
+  //    }
+   // });
 
     return NextResponse.json({
       success: true,
