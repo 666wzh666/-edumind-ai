@@ -291,4 +291,10 @@ const PieChart = () => {
   </Card>
 </Col>
   </Row>
-</TabPane>
+            </TabPane>
+          </Tabs>
+        </Content>
+      </Layout>
+    </Layout>
+  );
+}
