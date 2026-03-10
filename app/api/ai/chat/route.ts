@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+//import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
 export async function POST(request: Request) {
@@ -32,13 +32,13 @@ export async function POST(request: Request) {
     const answer = `关于"${question}"的问题，这是一个模拟回答。等你接入真正的AI（比如通义千问），这里就会有聪明回答了！`;
 
     // 把提问和回答记录到数据库
-    await prisma.interaction.create({
-      data: {
-        userId,
-        question,
-        answer
-      }
-    });
+   // await prisma.interaction.create({
+      //data: {
+      //  userId,
+    //    question,
+    //    answer
+   //   }
+   // });
 
     // 给用户增加0.1小时学习时长
     await prisma.user.update({
