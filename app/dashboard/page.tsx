@@ -37,7 +37,17 @@ const [userStats, setUserStats] = useState(() => {
     points: 1250,         // 积分
   };
 });
+// 最近学习记录
+const [recentActivities, setRecentActivities] = useState<string[]>(() => {
+  const saved = typeof window !== 'undefined' ? localStorage.getItem('recent_activities') : null;
+  return saved ? JSON.parse(saved) : [];
+});
 
+useEffect(() => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('recent_activities', JSON.stringify(recentActivities));
+  }
+}, [recentActivities]);
 // 当统计数据变化时自动保存到本地存储
 useEffect(() => {
   if (typeof window !== 'undefined') {
@@ -54,7 +64,13 @@ const handleStartLearning = (courseName: string) => {
   points: prev.points + 10,
   totalHours: prev.totalHours + 0.5,
 }));
-
+// 添加一条学习记录
+const now = new Date();
+const hours = now.getHours().toString().padStart(2, '0');
+const minutes = now.getMinutes().toString().padStart(2, '0');
+const timeStr = `${hours}:${minutes}`;
+const newRecord = `学习了《${courseName}》 - ${timeStr}`;
+setRecentActivities(prev => [newRecord, ...prev].slice(0, 10)); // 只保留最近10条
   message.success(`继续学习《${courseName}》，进度已更新！`);
 };
 
@@ -401,6 +417,16 @@ const PieChart = () => {
         </List>
       </Col>
     </Row>
+    {/* 最近学习记录 */}
+<div style={{ marginTop: 24 }}>
+  <Title level={5}>最近学习</Title>
+  <List
+    size="small"
+    dataSource={recentActivities}
+    renderItem={(item) => <List.Item>• {item}</List.Item>}
+    locale={{ emptyText: '暂无学习记录，快去学习吧！' }}
+  />
+</div>
     <div style={{ marginTop: 24, textAlign: 'center' }}>
       <Button 
         type="primary" 
