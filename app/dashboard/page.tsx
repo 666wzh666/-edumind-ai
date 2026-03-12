@@ -27,6 +27,73 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('1');
   const router = useRouter();
+  // 用户统计数据（学习天数、时长、积分等）
+const [userStats, setUserStats] = useState(() => {
+  const saved = localStorage.getItem('user_stats');
+  return saved ? JSON.parse(saved) : {
+    studyDays: 16,        // 连续打卡
+    totalHours: 7.2,      // 学习时长
+    completedCourses: 8,  // 完成课程
+    points: 1250,         // 积分
+  };
+});
+
+// 当统计数据变化时自动保存到本地存储
+useEffect(() => {
+  localStorage.setItem('user_stats', JSON.stringify(userStats));
+}, [userStats]);
+// 处理点击“开始学习”
+const handleStartLearning = (courseName: string) => {
+
+  // 更新统计：学习天数+1，积分+10，学习时长+0.5小时
+  setUserStats(prev => ({
+    ...prev,
+    studyDays: prev.studyDays + 1,
+    points: prev.points + 10,
+    totalHours: prev.totalHours + 0.5,
+  }));
+
+  message.success(`继续学习《${courseName}》，进度已更新！`);
+};
+
+// 处理AI提问
+const askAI = async () => {
+  if (!question.trim()) {
+    message.warning('请输入问题');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch('/api/ai/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ question })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      setAnswer(data.data.answer);
+      // 提问成功，增加学习时长和积分
+      setUserStats(prev => ({
+        ...prev,
+        totalHours: prev.totalHours + 0.1,
+        points: prev.points + 5,
+      }));
+      message.success('回答完成');
+    } else {
+      message.error(data.message);
+    }
+  } catch (error) {
+    message.error('提问失败');
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -77,6 +144,7 @@ const PieChart = () => {
   };
   return <Pie {...config} />;
 };
+
   const askAI = async () => {
     if (!question.trim()) {
       message.warning('请输入问题');
@@ -261,17 +329,48 @@ const PieChart = () => {
             {/* 知识图谱 */}
             <TabPane tab="知识图谱" key="3">
               <Card title={<Space><ShareAltOutlined style={{ color: '#722ed1' }} /><span>微积分知识图谱</span></Space>} style={{ borderRadius: 12 }}>
-                <Row gutter={[16, 16]}>
-                  {knowledgeNodes.map(node => (
-                    <Col xs={24} sm={12} md={8} key={node.name}>
-                      <Card size="small" hoverable style={{ textAlign: 'center', background: node.status === 'mastered' ? '#f6ffed' : node.status === 'learning' ? '#e6f7ff' : node.status === 'started' ? '#fff7e6' : '#f5f5f5' }}>
-                        <Title level={5}>{node.name}</Title>
-                        <Progress percent={node.progress} size="small" status={node.progress === 100 ? 'success' : 'active'} />
-                        <Text type="secondary" style={{ fontSize: 12 }}>{node.status === 'mastered' ? '已掌握' : node.status === 'learning' ? '学习中' : node.status === 'started' ? '刚开始' : '未开始'}</Text>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
+               <Row gutter={[24, 24]}>
+  <Col xs={24} sm={12} md={6}>
+    <Card hoverable>
+      <Statistic
+        title="今日学习"
+        value={`${userStats.totalHours.toFixed(1)}小时`}
+        prefix={<ClockCircleOutlined />}
+        valueStyle={{ color: '#1890ff' }}
+      />
+    </Card>
+  </Col>
+  <Col xs={24} sm={12} md={6}>
+    <Card hoverable>
+      <Statistic
+        title="连续打卡"
+        value={`${userStats.studyDays}天`}
+        prefix={<FireOutlined />}
+        valueStyle={{ color: '#fa541c' }}
+      />
+    </Card>
+  </Col>
+  <Col xs={24} sm={12} md={6}>
+    <Card hoverable>
+      <Statistic
+        title="完成课程"
+        value={`${userStats.completedCourses}门`}
+        prefix={<BookOutlined />}
+        valueStyle={{ color: '#52c41a' }}
+      />
+    </Card>
+  </Col>
+  <Col xs={24} sm={12} md={6}>
+    <Card hoverable>
+      <Statistic
+        title="获得积分"
+        value={`${userStats.points}分`}
+        prefix={<TrophyOutlined />}
+        valueStyle={{ color: '#faad14' }}
+      />
+    </Card>
+  </Col>
+</Row>
                 <div style={{ marginTop: 24, textAlign: 'center' }}>
                   <Text type="secondary">已掌握 1/6 核心概念 · 推荐学习：微分</Text>
                 </div>
