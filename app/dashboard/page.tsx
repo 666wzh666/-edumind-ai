@@ -46,12 +46,12 @@ useEffect(() => {
 const handleStartLearning = (courseName: string) => {
 
   // 更新统计：学习天数+1，积分+10，学习时长+0.5小时
-  setUserStats(prev => ({
-    ...prev,
-    studyDays: prev.studyDays + 1,
-    points: prev.points + 10,
-    totalHours: prev.totalHours + 0.5,
-  }));
+  setUserStats((prev: typeof userStats) => ({
+  ...prev,
+  studyDays: prev.studyDays + 1,
+  points: prev.points + 10,
+  totalHours: prev.totalHours + 0.5,
+}));
 
   message.success(`继续学习《${courseName}》，进度已更新！`);
 };
@@ -79,11 +79,11 @@ const askAI = async () => {
     if (data.success) {
       setAnswer(data.data.answer);
       // 提问成功，增加学习时长和积分
-      setUserStats(prev => ({
-        ...prev,
-        totalHours: prev.totalHours + 0.1,
-        points: prev.points + 5,
-      }));
+      setUserStats((prev: typeof userStats) => ({
+  ...prev,
+  totalHours: prev.totalHours + 0.1,
+  points: prev.points + 5,
+}));
       message.success('回答完成');
     } else {
       message.error(data.message);
