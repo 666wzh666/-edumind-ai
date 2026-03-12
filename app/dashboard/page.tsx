@@ -67,10 +67,12 @@ const askAI = async () => {
 
   setLoading(true);
   try {
-   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-if (!token) {
-  message.error('请先登录');
-  return;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) {
+      message.error('请先登录');
+      setLoading(false);
+      return;
+    }
 
     const res = await fetch('/api/ai/chat', {
       method: 'POST',
@@ -84,12 +86,11 @@ if (!token) {
     const data = await res.json();
     if (data.success) {
       setAnswer(data.data.answer);
-      // 提问成功，增加学习时长和积分
       setUserStats((prev: typeof userStats) => ({
-  ...prev,
-  totalHours: prev.totalHours + 0.1,
-  points: prev.points + 5,
-}));
+        ...prev,
+        totalHours: prev.totalHours + 0.1,
+        points: prev.points + 5,
+      }));
       message.success('回答完成');
     } else {
       message.error(data.message);
