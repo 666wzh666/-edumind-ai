@@ -155,6 +155,22 @@ const PieChart = () => {
             { key: '5', icon: <UserOutlined />, label: '个人中心' },
           ]}
         />
+        {/* 学习目标卡片 */}
+<Card size="small" style={{ margin: '16px 8px', borderRadius: 12 }}>
+  <Statistic 
+    title="本周学习目标" 
+    value="10小时" 
+    valueStyle={{ fontSize: 24, color: '#1890ff' }}
+  />
+  <Progress 
+    percent={Math.min((userStats?.totalHours || 0) / 10 * 100, 100)} 
+    size="small" 
+    status="active"
+  />
+  <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
+    已完成 {(userStats?.totalHours || 0).toFixed(1)} 小时
+  </Text>
+</Card>
       </Sider>
 
       {/* 右边主要内容 */}
