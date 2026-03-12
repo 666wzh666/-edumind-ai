@@ -29,7 +29,7 @@ export default function DashboardPage() {
   const router = useRouter();
   // 用户统计数据（学习天数、时长、积分等）
 const [userStats, setUserStats] = useState(() => {
-  const saved = localStorage.getItem('user_stats');
+ const saved = typeof window !== 'undefined' ? localStorage.getItem('user_stats') : null;
   return saved ? JSON.parse(saved) : {
     studyDays: 16,        // 连续打卡
     totalHours: 7.2,      // 学习时长
@@ -40,7 +40,9 @@ const [userStats, setUserStats] = useState(() => {
 
 // 当统计数据变化时自动保存到本地存储
 useEffect(() => {
-  localStorage.setItem('user_stats', JSON.stringify(userStats));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('user_stats', JSON.stringify(userStats));
+  }
 }, [userStats]);
 // 处理点击“开始学习”
 const handleStartLearning = (courseName: string) => {
@@ -65,7 +67,11 @@ const askAI = async () => {
 
   setLoading(true);
   try {
-    const token = localStorage.getItem('token');
+   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+if (!token) {
+  message.error('请先登录');
+  return;
+
     const res = await fetch('/api/ai/chat', {
       method: 'POST',
       headers: {
@@ -96,7 +102,7 @@ const askAI = async () => {
 };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     if (!token) {
       router.push('/login');
       return;
