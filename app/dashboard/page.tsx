@@ -145,37 +145,7 @@ const PieChart = () => {
   return <Pie {...config} />;
 };
 
-  const askAI = async () => {
-    if (!question.trim()) {
-      message.warning('请输入问题');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('/api/ai/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ question })
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        setAnswer(data.data.answer);
-        message.success('回答完成');
-      } else {
-        message.error(data.message);
-      }
-    } catch (error) {
-      message.error('提问失败');
-    } finally {
-      setLoading(false);
-    }
-  };
+  
 
   const handleLogout = () => {
     localStorage.removeItem('token');
